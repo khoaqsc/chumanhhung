@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "Member": {
+      "title": "Member",
+      "description": "A member of the family tree",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the member" },
+        "generation": { "type": "number", "description": "Generation number" },
+        "spouse": { "type": "string", "description": "Name of the spouse" },
+        "spouses": { "type": "array", "items": { "type": "object" }, "description": "List of spouses" },
+        "honorific": { "type": "string", "description": "Honorific title" },
+        "birthYear": { "type": "string", "description": "Year of birth" },
+        "deathYear": { "type": "string", "description": "Year of death" },
+        "birthDate": { "type": "string", "description": "Full birth date" },
+        "deathDate": { "type": "string", "description": "Full death date" },
+        "lifespan": { "type": "number", "description": "Age at death" },
+        "birthPlace": { "type": "string", "description": "Place of birth" },
+        "familyDetails": { "type": "string", "description": "Additional family details" },
+        "biography": { "type": "string", "description": "Biography of the member" },
+        "burialInfo": { "type": "string", "description": "Burial information" },
+        "burialPlace": { "type": "string", "description": "Place of burial" },
+        "gender": { "type": "string", "enum": ["Nam", "Nữ"], "description": "Gender of the member" },
+        "parentId": { "type": "string", "description": "ID of the parent member" },
+        "fatherName": { "type": "string", "description": "Name of the father" },
+        "motherName": { "type": "string", "description": "Name of the mother" },
+        "photoURL": { "type": "string", "description": "URL to the member's photo" },
+        "order": { "type": "number", "description": "Order among siblings" },
+        "spouse1": { "type": "string" },
+        "spouse2": { "type": "string" },
+        "child1": { "type": "string" },
+        "child2": { "type": "string" },
+        "child3": { "type": "string" },
+        "extraSpouses": { "type": "array", "items": { "type": "object" } },
+        "extraChildren": { "type": "array", "items": { "type": "object" } },
+        "familyTreeId": { "type": "string", "description": "ID of the family tree this member belongs to" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "generation", "gender"]
+    },
+    "Grave": {
+      "title": "Grave",
+      "description": "A grave location on the map",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the person buried" },
+        "lat": { "type": "number", "description": "Latitude" },
+        "lng": { "type": "number", "description": "Longitude" },
+        "familyTreeId": { "type": "string", "description": "ID of the family tree this grave belongs to" },
+        "description": { "type": "string", "description": "Description of the grave" },
+        "photo": { "type": "string", "description": "URL to a photo of the grave" }
+      },
+      "required": ["name", "lat", "lng"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "A family event",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the event" },
+        "date": { "type": "string", "format": "date", "description": "Date of the event" },
+        "description": { "type": "string", "description": "Description of the event" },
+        "type": { "type": "string", "description": "Type of event" },
+        "familyTreeId": { "type": "string", "description": "ID of the family tree this event belongs to" },
+        "location": { "type": "string", "description": "Location of the event" }
+      },
+      "required": ["title", "date"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/members/{memberId}": {
+      "schema": "Member",
+      "description": "Collection of family members"
+    },
+    "/graveLocations/{graveId}": {
+      "schema": "Grave",
+      "description": "Collection of grave locations"
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "Collection of family events"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of application users"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Gia Phả & Tảo Mộ",
+  "description": "Ứng dụng gia phả hiện đại, tương thích mượt mà trên mọi thiết bị di động và máy tính, tối ưu hóa lượt đọc và tốc độ truy cập.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

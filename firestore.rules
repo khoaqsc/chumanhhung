@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: members
+    // Fields: name, generation, gender, parentId, photoURL, etc.
+    //
+    // Collection: graveLocations
+    // Fields: name, lat, lng, description, photo
+    //
+    // Collection: events
+    // Fields: title, date, description, type, location
+    //
+    // Collection: users
+    // Fields: name, email, role
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == "chubatien1986@gmail.com");
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, maxLen) {
+      return request.resource.data[field] is string && request.resource.data[field].size() <= maxLen;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidMember(data) {
+      return hasRequiredFields(['name', 'generation', 'gender']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.generation is number &&
+             data.gender in ['Nam', 'Nữ'];
+    }
+
+    function isValidGrave(data) {
+      return hasRequiredFields(['name', 'lat', 'lng']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.lat is number && data.lng is number;
+    }
+
+    function isValidEvent(data) {
+      return hasRequiredFields(['title', 'date']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.date is string;
+    }
+
+    function isValidUser(data) {
+      return hasRequiredFields(['email', 'role']) &&
+             data.email is string &&
+             data.role in ['admin', 'user'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /members/{memberId} {
+      allow read: if true; // Publicly readable for family members
+      allow create, update: if isAdmin() && isValidMember(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /graveLocations/{graveId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidGrave(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidEvent(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    ((request.auth.uid == userId && request.resource.data.role == 'user') || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    ((request.auth.uid == userId && request.resource.data.role == resource.data.role) || isAdmin());
+      allow delete: if isAdmin();
+    }
+  }
+}
